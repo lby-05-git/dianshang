@@ -1,0 +1,27 @@
+# Worker 镜像使用项目根目录作为构建上下文。
+# 除 backend 外还必须复制 eval_refund；app.worker.run 会同时启动
+# 退款申请、人工决策和评测三个消费者。
+FROM python:3.12-slim
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libgomp1 \
+    libgl1 \
+    libglib2.0-0 \
+    libxcb1 \
+    libxkbcommon0 \
+    fonts-noto-cjk \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY backend/requirements.txt ./requirements.txt
+RUN pip install --no-cache-dir -i https://pypi.tuna.tsinghua.edu.cn/simple -r requirements.txt
+
+# 保持 backend 镜像原有的 /app 目录结构，同时补齐根目录评测包。
+COPY backend/ ./
+COPY eval_refund/ ./eval_refund/
+
+RUN chmod +x /app/docker-entrypoint.sh
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
+
+CMD ["python", "-m", "app.worker.run"]

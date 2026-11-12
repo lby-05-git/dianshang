@@ -1,0 +1,24 @@
+{
+  "name": "complaint-refund-frontend",
+  "private": true,
+  "version": "3.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/vite.mjs dev",
+    "build": "node scripts/vite.mjs build",
+    "preview": "node scripts/vite.mjs preview"
+  },
+  "dependencies": {
+    "axios": "^1.7.9",
+    "echarts": "^5.6.0",
+    "vue": "^3.5.13",
+    "vue-router": "^4.5.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.2.1",
+    "vite": "^5.4.11"
+  },
+  "allowScripts": {
+    "esbuild@0.21.5": true
+  }
+}

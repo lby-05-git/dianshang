@@ -1,0 +1,480 @@
+{
+  "approver": "supervisor1",
+  "case_count": 15,
+  "cases": [
+    {
+      "allow": {
+        "final_decisions": [
+          "APPROVED"
+        ]
+      },
+      "case_type": "auto_approve",
+      "expected": {
+        "current_status": "COMPLETED",
+        "final_decision": "APPROVED",
+        "order_verification": "MATCH",
+        "price_consistency": "MATCH",
+        "product_consistency": "MATCH",
+        "refund_status": "SUCCESS"
+      },
+      "forbidden_nodes": [
+        "human_review"
+      ],
+      "id": "G01",
+      "max_wait_seconds": 60,
+      "order_id": "ORD-1001",
+      "reason": "保温杯破损申请退款",
+      "reason_codes": "quality_breakage",
+      "requested_amount": "99.00",
+      "required_nodes": [
+        "intake",
+        "verification",
+        "ocr",
+        "fraud",
+        "sentiment",
+        "amount_decision",
+        "refund_execution",
+        "finalize"
+      ],
+      "side_effect": "refund:success",
+      "tags": [],
+      "use_unique_order": true
+    },
+    {
+      "allow": {
+        "final_decisions": [
+          "APPROVED"
+        ]
+      },
+      "approval_required": true,
+      "case_type": "high_value_approve",
+      "expected": {
+        "current_status": "COMPLETED",
+        "final_decision": "APPROVED",
+        "order_verification": "MATCH",
+        "price_consistency": "MATCH",
+        "product_consistency": "MATCH",
+        "refund_status": "SUCCESS"
+      },
+      "forbidden_nodes": [],
+      "id": "G02",
+      "max_wait_seconds": 90,
+      "order_id": "ORD-2001",
+      "reason": "空气炸锅质量问题申请退款",
+      "requested_amount": "888.00",
+      "required_nodes": [
+        "human_review"
+      ],
+      "side_effect": "refund:success",
+      "tags": [],
+      "use_unique_order": true
+    },
+    {
+      "allow": {
+        "final_decisions": [
+          "REJECTED"
+        ]
+      },
+      "case_type": "high_value_reject",
+      "expected": {
+        "current_status": "COMPLETED",
+        "final_decision": "REJECTED",
+        "order_verification": "MATCH",
+        "price_consistency": "MATCH",
+        "product_consistency": "MATCH",
+        "refund_status": "NONE"
+      },
+      "forbidden_nodes": [
+        "refund_execution"
+      ],
+      "id": "G03",
+      "max_wait_seconds": 90,
+      "order_id": "ORD-2001",
+      "reason": "空气炸锅质量问题申请退款",
+      "reject_required": true,
+      "requested_amount": "888.00",
+      "required_nodes": [
+        "human_review"
+      ],
+      "side_effect": "no_refund",
+      "tags": [],
+      "use_unique_order": true
+    },
+    {
+      "allow": {
+        "order_verification": [
+          "MISMATCH"
+        ]
+      },
+      "case_type": "order_not_found",
+      "expected": {
+        "current_status": "SUSPENDED",
+        "final_decision": "PENDING",
+        "order_verification": "MISMATCH",
+        "price_consistency": "UNKNOWN",
+        "product_consistency": "UNKNOWN",
+        "refund_status": "NONE"
+      },
+      "forbidden_nodes": [
+        "refund_execution"
+      ],
+      "id": "G04",
+      "max_wait_seconds": 60,
+      "order_id": "ORD-NOT-EXIST",
+      "reason": "请求退款",
+      "requested_amount": "99.00",
+      "required_nodes": [
+        "verification",
+        "human_review"
+      ],
+      "side_effect": "no_refund",
+      "tags": []
+    },
+    {
+      "allow": {
+        "order_verification": [
+          "MISMATCH"
+        ]
+      },
+      "as_user": "customer_service1",
+      "case_type": "owner_mismatch",
+      "expected": {
+        "current_status": "SUSPENDED",
+        "final_decision": "PENDING",
+        "order_verification": "MISMATCH",
+        "price_consistency": "MATCH",
+        "product_consistency": "MATCH",
+        "refund_status": "NONE"
+      },
+      "forbidden_nodes": [
+        "refund_execution"
+      ],
+      "id": "G05",
+      "max_wait_seconds": 60,
+      "order_id": "ORD-3001",
+      "reason": "机械键盘申请退款",
+      "requested_amount": "99.00",
+      "required_nodes": [
+        "verification",
+        "human_review"
+      ],
+      "side_effect": "no_refund",
+      "tags": []
+    },
+    {
+      "allow": {
+        "product_consistency": [
+          "MISMATCH"
+        ]
+      },
+      "case_type": "product_mismatch",
+      "expected": {
+        "current_status": "SUSPENDED",
+        "final_decision": "PENDING",
+        "order_verification": "MATCH",
+        "price_consistency": "MATCH",
+        "product_consistency": "MISMATCH",
+        "refund_status": "NONE"
+      },
+      "forbidden_nodes": [
+        "refund_execution"
+      ],
+      "id": "G06",
+      "max_wait_seconds": 60,
+      "order_id": "ORD-3002",
+      "reason": "这个不是我买的商品，与我订单不符",
+      "requested_amount": "120.00",
+      "required_nodes": [
+        "verification",
+        "human_review"
+      ],
+      "side_effect": "no_refund",
+      "tags": []
+    },
+    {
+      "allow": {
+        "price_consistency": [
+          "MISMATCH"
+        ]
+      },
+      "case_type": "price_mismatch",
+      "expected": {
+        "current_status": "SUSPENDED",
+        "final_decision": "PENDING",
+        "order_verification": "MATCH",
+        "price_consistency": "MISMATCH",
+        "product_consistency": "MATCH",
+        "refund_status": "NONE"
+      },
+      "forbidden_nodes": [
+        "refund_execution"
+      ],
+      "id": "G07",
+      "max_wait_seconds": 60,
+      "order_id": "ORD-3003",
+      "reason": "冰箱申请退款",
+      "requested_amount": "500.00",
+      "required_nodes": [
+        "verification",
+        "human_review"
+      ],
+      "side_effect": "no_refund",
+      "tags": []
+    },
+    {
+      "allow": {
+        "order_verification": [
+          "UNKNOWN"
+        ]
+      },
+      "case_type": "provider_timeout",
+      "expected": {
+        "current_status": "SUSPENDED",
+        "final_decision": "PENDING",
+        "order_verification": "UNKNOWN",
+        "price_consistency": "UNKNOWN",
+        "product_consistency": "UNKNOWN",
+        "refund_status": "NONE"
+      },
+      "forbidden_nodes": [
+        "refund_execution"
+      ],
+      "id": "G08",
+      "max_wait_seconds": 60,
+      "order_id": "ORD-TIMEOUT-1",
+      "reason": "请求退款",
+      "requested_amount": "99.00",
+      "required_nodes": [
+        "verification",
+        "human_review"
+      ],
+      "side_effect": "no_refund",
+      "tags": [],
+      "timeout_for_username": "customer_service1"
+    },
+    {
+      "allow": {
+        "current_status": [
+          "SUSPENDED"
+        ]
+      },
+      "case_type": "ocr_low_confidence",
+      "expected": {
+        "current_status": "SUSPENDED",
+        "final_decision": "PENDING",
+        "order_verification": "MATCH",
+        "price_consistency": "MATCH",
+        "product_consistency": "MATCH",
+        "refund_status": "NONE"
+      },
+      "forbidden_nodes": [
+        "refund_execution"
+      ],
+      "id": "G09",
+      "inject": {
+        "ocr_confidence": 0.3
+      },
+      "max_wait_seconds": 60,
+      "order_id": "ORD-OCR-LOW",
+      "reason": "保温杯破损申请退款",
+      "requested_amount": "99.00",
+      "required_nodes": [
+        "human_review"
+      ],
+      "side_effect": "no_refund",
+      "tags": [],
+      "use_unique_order": true
+    },
+    {
+      "allow": {
+        "current_status": [
+          "SUSPENDED"
+        ]
+      },
+      "case_type": "ocr_failure",
+      "expected": {
+        "current_status": "SUSPENDED",
+        "final_decision": "PENDING",
+        "refund_status": "NONE"
+      },
+      "forbidden_nodes": [
+        "refund_execution"
+      ],
+      "id": "G10",
+      "inject": {
+        "ocr_failure": true
+      },
+      "max_wait_seconds": 60,
+      "order_id": "ORD-OCR-FAIL",
+      "reason": "保温杯破损申请退款",
+      "requested_amount": "99.00",
+      "required_nodes": [
+        "human_review"
+      ],
+      "side_effect": "no_refund",
+      "tags": [],
+      "use_unique_order": true
+    },
+    {
+      "allow": {
+        "current_status": [
+          "SUSPENDED"
+        ]
+      },
+      "case_type": "llm_unavailable",
+      "expected": {
+        "current_status": "SUSPENDED",
+        "final_decision": "PENDING",
+        "refund_status": "NONE"
+      },
+      "forbidden_nodes": [
+        "refund_execution"
+      ],
+      "id": "G11",
+      "inject": {
+        "llm_failure": true
+      },
+      "max_wait_seconds": 60,
+      "order_id": "ORD-LLM-DOWN",
+      "reason": "保温杯破损申请退款",
+      "requested_amount": "99.00",
+      "required_nodes": [
+        "human_review"
+      ],
+      "side_effect": "no_refund",
+      "tags": [],
+      "use_unique_order": true
+    },
+    {
+      "allow": {
+        "final_decisions": [
+          "APPROVED"
+        ]
+      },
+      "case_type": "idempotency",
+      "expected": {
+        "current_status": "COMPLETED",
+        "final_decision": "APPROVED",
+        "refund_status": "SUCCESS"
+      },
+      "forbidden_nodes": [],
+      "id": "G12",
+      "max_duplicate_success": 1,
+      "max_wait_seconds": 60,
+      "order_id": "ORD-IDEM",
+      "reason": "保温杯破损申请退款",
+      "requested_amount": "150.00",
+      "required_nodes": [
+        "refund_execution",
+        "finalize"
+      ],
+      "side_effect": "refund:success@lenient",
+      "tags": [],
+      "use_unique_order": true
+    },
+    {
+      "allow": {
+        "final_decisions": [
+          "APPROVED"
+        ]
+      },
+      "approval_required": true,
+      "case_type": "refund_status_success",
+      "expected": {
+        "current_status": "COMPLETED",
+        "final_decision": "APPROVED",
+        "order_verification": "MATCH",
+        "refund_status": "SUCCESS"
+      },
+      "forbidden_nodes": [],
+      "id": "G13",
+      "max_wait_seconds": 90,
+      "order_id": "ORD-REFUND-OK",
+      "reason": "跑步机申请退款",
+      "requested_amount": "350.00",
+      "required_nodes": [
+        "human_review",
+        "refund_execution",
+        "finalize"
+      ],
+      "side_effect": "refund:success",
+      "tags": [],
+      "use_unique_order": true
+    },
+    {
+      "allow": {
+        "current_status": [
+          "SUSPENDED"
+        ]
+      },
+      "case_type": "fraud_evidence_reuse",
+      "expected": {
+        "current_status": "SUSPENDED",
+        "final_decision": "PENDING",
+        "refund_status": "NONE"
+      },
+      "forbidden_nodes": [
+        "refund_execution"
+      ],
+      "id": "G14",
+      "max_wait_seconds": 60,
+      "order_id": "ORD-FRAUD",
+      "reason": "保温杯破损申请退款",
+      "requested_amount": "99.00",
+      "required_nodes": [
+        "human_review"
+      ],
+      "reuse_evidence": true,
+      "side_effect": "no_refund",
+      "tags": [],
+      "use_unique_order": true
+    },
+    {
+      "allow": {
+        "current_status": [
+          "SUSPENDED"
+        ]
+      },
+      "case_type": "threshold_carding",
+      "expected": {
+        "current_status": "SUSPENDED",
+        "final_decision": "PENDING",
+        "refund_status": "NONE"
+      },
+      "forbidden_nodes": [
+        "refund_execution"
+      ],
+      "id": "G15",
+      "max_wait_seconds": 60,
+      "order_id": "ORD-THRESHOLD",
+      "reason": "保温杯破损申请退款",
+      "requested_amount": "299.00",
+      "required_nodes": [
+        "human_review"
+      ],
+      "side_effect": "no_refund",
+      "tags": [],
+      "use_unique_order": true
+    }
+  ],
+  "checksum": "9aa251d58035b89112ba949b8ccccd69397daad7f38a62cd99b5f921214abd72",
+  "created_by": "eval_refund.golden",
+  "dataset_version": "1.0.0",
+  "modalities": [
+    "text",
+    "image"
+  ],
+  "primary_owner": "customer_service1",
+  "required_capabilities": [
+    "refund_workflow",
+    "order_verification",
+    "hitl"
+  ],
+  "reserved_tags": [
+    "security",
+    "intent",
+    "voice",
+    "coaching"
+  ],
+  "schema_version": "1.0"
+}

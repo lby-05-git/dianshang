@@ -1,0 +1,41 @@
+# 密钥与配置
+.env
+*.env.local
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+*.egg-info/
+
+# Node
+node_modules/
+dist/
+
+# 上传文件与数据
+backend/uploads/
+/uploads/
+D:/MySQLData/
+
+# 工具与日志
+.tools/
+*.log
+
+# 系统
+.DS_Store
+Thumbs.db
+
+# 运行时产物与本地调试文件（不入库）
+/reports/
+/.ppt_build_star60/
+/.refcheck/
+/.claude/
+/.vscode/
+/.audit/
+/seed_*.txt
+/*_test.txt
+/*_hash.txt
+/*_probe.txt
+/venv_*.txt
+/docker_*.txt

@@ -1,0 +1,23 @@
+# 后端依赖（Python 3.12, conda env: ksyqtpjc）
+fastapi>=0.115
+uvicorn[standard]>=0.30
+pydantic>=2.8
+pydantic-settings>=2.4
+sqlalchemy>=2.0
+alembic>=1.13
+pymysql>=1.1
+redis>=5.0
+python-jose[cryptography]>=3.3
+bcrypt>=4.1
+python-multipart>=0.0.9
+httpx>=0.27
+pytest>=8.0
+pytest-asyncio>=0.24
+langgraph>=0.2
+langgraph-checkpoint-redis>=0.4
+python-dotenv>=1.0
+prometheus-client>=0.20
+psutil>=5.9            # A08：评测并行资源占用实测（peak RSS）
+# OCR（裁决 D1：PaddleOCR 优先，失败切 rapidocr）
+rapidocr-onnxruntime>=1.4
+Pillow>=10.0

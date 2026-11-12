@@ -1,0 +1,15 @@
+# Prometheus 配置（任务三 3.1：实时观察系统运行指标）
+global:
+  scrape_interval: 5s
+  evaluation_interval: 5s
+
+scrape_configs:
+  - job_name: refund-backend
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["backend:8000"]
+        labels:
+          service: refund-system
+  - job_name: prometheus
+    static_configs:
+      - targets: ["localhost:9090"]

@@ -1,0 +1,159 @@
+# 任务三：Docker Compose 五件套（web/backend/worker/redis/mysql）—— docs/06 WBS D7
+# 端口规划（避开本机开发实例与 Windows 保留端口 3307-3406）：
+#   mysql 13306 / redis 6380 / backend 8001 / web 8080
+# 压测入口：http://127.0.0.1:8001（API）与 http://127.0.0.1:8080（前端）
+name: refund-system
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: rfs-mysql
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"   # root 空密码（与开发实例一致）
+      MYSQL_DATABASE: complaint_refund
+      TZ: Asia/Shanghai
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    ports:
+      - "13306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: always
+
+  redis:
+    image: redis:6-alpine
+    container_name: rfs-redis
+    ports:
+      - "6380:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: always
+
+  backend:
+    # API 的首次一键评测需要根目录 eval_refund Golden 数据集，因此与 Worker
+    # 一样使用项目根作为构建上下文，避免空库时 ModuleNotFoundError。
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: rfs-backend
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4"]
+    environment:
+      DB_HOST: mysql
+      DB_PORT: "3306"
+      DB_USER: root
+      DB_PASSWORD: ""
+      DB_NAME: complaint_refund
+      REDIS_URL: redis://redis:6379/0
+      LLM_API_BASE: ${LLM_API_BASE:-https://api.agicto.cn/v1}
+      LLM_API_KEY: ${LLM_API_KEY:-}
+      LLM_MODEL: ${LLM_MODEL:-deepseek-v4-pro}
+      OLLAMA_BASE_URL: http://host.docker.internal:11434
+      VISION_ENABLED: "true"
+      VISION_MODEL: ${VISION_MODEL:-qwen2.5vl:7b}
+      VISION_TIMEOUT_SECONDS: ${VISION_TIMEOUT_SECONDS:-180}
+      VISION_KEEP_ALIVE: ${VISION_KEEP_ALIVE:-30m}
+      VISION_MAX_IMAGE_EDGE: ${VISION_MAX_IMAGE_EDGE:-384}
+      SENTIMENT_RULE_FALLBACK_ENABLED: "true"
+      UPLOAD_DIR: /app/uploads
+    ports:
+      - "8001:8000"
+    volumes:
+      - uploads_data:/app/uploads
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request;urllib.request.urlopen('http://127.0.0.1:8000/api/v1/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    restart: always
+
+  worker:
+    # Worker 会导入项目根目录的 eval_refund，不能继续只用 backend 作为构建上下文。
+    build:
+      context: .
+      dockerfile: backend/Dockerfile.worker
+    container_name: rfs-worker
+    command: ["python", "-m", "app.worker.run"]
+    environment:
+      DB_HOST: mysql
+      DB_PORT: "3306"
+      DB_USER: root
+      DB_PASSWORD: ""
+      DB_NAME: complaint_refund
+      REDIS_URL: redis://redis:6379/0
+      LLM_API_BASE: ${LLM_API_BASE:-https://api.agicto.cn/v1}
+      LLM_API_KEY: ${LLM_API_KEY:-}
+      LLM_MODEL: ${LLM_MODEL:-deepseek-v4-pro}
+      OLLAMA_BASE_URL: http://host.docker.internal:11434
+      VISION_ENABLED: "true"
+      VISION_MODEL: ${VISION_MODEL:-qwen2.5vl:7b}
+      VISION_TIMEOUT_SECONDS: ${VISION_TIMEOUT_SECONDS:-180}
+      VISION_KEEP_ALIVE: ${VISION_KEEP_ALIVE:-30m}
+      VISION_MAX_IMAGE_EDGE: ${VISION_MAX_IMAGE_EDGE:-384}
+      SENTIMENT_RULE_FALLBACK_ENABLED: "true"
+      UPLOAD_DIR: /app/uploads
+    volumes:
+      - uploads_data:/app/uploads
+      # 本地开发直接挂载业务源码，规则修复无需重新构建 OCR/ONNX 大镜像。
+      - ./backend/app:/app/app:ro
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: always
+
+  web:
+    build: ./frontend
+    container_name: rfs-web
+    ports:
+      - "8080:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: always
+
+  # 监控（任务三 3.1：Prometheus/Grafana 实时观察系统运行指标）
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: rfs-prometheus
+    volumes:
+      - ./tools/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "9090:9090"
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: always
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: rfs-grafana
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - ./tools/grafana/provisioning:/etc/grafana/provisioning:ro
+    ports:
+      - "3100:3000"   # 3000/3001 在 Windows 保留端口(2974-3073)内，用 3100
+    depends_on:
+      prometheus:
+        condition: service_started
+    restart: always
+
+volumes:
+  mysql_data:
+  uploads_data:

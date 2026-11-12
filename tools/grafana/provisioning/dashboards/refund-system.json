@@ -1,0 +1,88 @@
+{
+  "uid": "refund-system-dash",
+  "title": "客诉舆情退赔决策系统监控",
+  "tags": ["refund-system"],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "5s",
+  "time": { "from": "now-15m", "to": "now" },
+  "panels": [
+    {
+      "id": 1,
+      "type": "stat",
+      "title": "QPS（请求速率）",
+      "gridPos": { "h": 6, "w": 6, "x": 0, "y": 0 },
+      "targets": [
+        {
+          "expr": "sum(rate(http_requests_total[1m]))",
+          "legendFormat": "QPS"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "P95 延迟",
+      "gridPos": { "h": 6, "w": 6, "x": 6, "y": 0 },
+      "unit": "s",
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[1m])) by (le))",
+          "legendFormat": "P95"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "type": "stat",
+      "title": "错误率",
+      "gridPos": { "h": 6, "w": 6, "x": 12, "y": 0 },
+      "unit": "percentunit",
+      "targets": [
+        {
+          "expr": "sum(rate(http_requests_total{status=~\"5..\"}[1m])) / sum(rate(http_requests_total[1m]))",
+          "legendFormat": "5xx 占比"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "type": "stat",
+      "title": "后端进程 CPU",
+      "gridPos": { "h": 6, "w": 6, "x": 18, "y": 0 },
+      "unit": "percent",
+      "targets": [
+        {
+          "expr": "rate(process_cpu_seconds_total[1m]) * 100",
+          "legendFormat": "CPU %"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "type": "timeseries",
+      "title": "QPS 曲线（按接口）",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 6 },
+      "targets": [
+        {
+          "expr": "sum(rate(http_requests_total[1m])) by (route)",
+          "legendFormat": "{{route}}"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "type": "timeseries",
+      "title": "P95 延迟曲线（按接口）",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 6 },
+      "unit": "s",
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[1m])) by (le, route))",
+          "legendFormat": "{{route}}"
+        }
+      ]
+    }
+  ]
+}
